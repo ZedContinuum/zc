@@ -1,0 +1,55 @@
+#! /bin/bash
+
+### Zeda Compiler
+## zc
+## Version 0.1
+###
+
+help() {
+    printf "##########\n###  Zeda Compiler  \n##########\n\n  Usage:\n"
+    printf "\tbuild-engine\tBuilds the Zeda Engine source\n"
+    printf "\tbuild\t\tBuilds the current project\n"
+    printf "\thelp\t\tDisplays the help\n"
+    exit
+}
+
+build-engine() {
+    echo 'build-engine'
+}
+
+build-project() {
+    echo 'build-project'
+}
+
+create-lib() {
+    echo -n "Name of the new library: "
+    read name;
+    echo "Creating $name.h in include/$name"
+    mkdir -vp "./include/$name"
+    cat <<EOF > "./include/$name/$name.h"
+I am the h file
+EOF
+    echo "Creating $name.cpp in src/$name"
+    mkdir -vp "./src/$name"
+    cat <<EOF > "./src/$name/$name.cpp"
+I am the cpp file
+EOF
+}
+
+
+
+case "$1" in
+    "")
+	help
+	;;
+    "build-engine")
+	build-engine
+	;;
+    "create-lib")
+	create-lib
+	;;
+    *)
+	echo "$1 is not a valid command of $0"
+	help
+	;;
+esac
