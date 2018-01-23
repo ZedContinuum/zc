@@ -5,22 +5,34 @@
 ## Version 0.1
 ###
 
+#Help
 help() {
-    printf "##########\n###  Zeda Compiler  \n##########\n\n  Usage:\n"
+    printf "\n##########\n###  Zeda Compiler  \n##########\n\n  Usage:\n"
     printf "\tbuild-engine\tBuilds the Zeda Engine source\n"
     printf "\tbuild\t\tBuilds the current project\n"
-    printf "\thelp\t\tDisplays the help\n"
+    printf "\tcreate-lib\tAdd a lib to the current project\n"
+    printf "\tnew-project\tStart a new project\n"
+    printf "\timport-project\tImport a Zeda project\n"
+    printf "\n"
     exit
 }
 
+#Check and verify source file
+cv() {
+    echo "Check and verify"
+}
+
+#Build the engine
 build-engine() {
     echo 'build-engine'
 }
 
+#Build the current project
 build-project() {
     echo 'build-project'
 }
 
+#Create a new include
 create-lib() {
     echo -n "Name of the new library: "
     read name;
@@ -36,8 +48,26 @@ I am the cpp file
 EOF
 }
 
+#Start a new project
+new-project() {
+    if [ -f $PWD/.zedarc ]; then
+	printf "WARNING:  zedarc exists.\nA project potentially exists here.\n"
+	read -ep "Continue creating a new project? [Y/n]: " Proceed
+        if echo $Proceed | grep -iq "^n"; then exit; fi
+    fi
+    printf "\n##########\n###  Zeda Compiler New Project \n##########\n\n"
+    name=""
+    while [ "$name" == "" ]
+    do
+	read -ep "Name of project: " name
+	if [ "$name" == "" ]; then
+	    echo "Enter a valid name for the project."
+	fi
+    done;
+    echo "name is: $name"
+}
 
-
+#Init Logic
 case "$1" in
     "")
 	help
@@ -47,6 +77,9 @@ case "$1" in
 	;;
     "create-lib")
 	create-lib
+	;;
+    "new-project")
+	new-project
 	;;
     *)
 	echo "$1 is not a valid command of $0"
