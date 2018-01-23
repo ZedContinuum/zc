@@ -5,6 +5,38 @@
 ## Version 0.1
 ###
 
+##Utilities
+
+### Sinmple yes/no
+yn() {
+    v=""
+    while [ "$v" == "" ]
+    do
+	echo -n "$1 [y\n]: "
+	read v
+	if [ "$v" == "y" ] || [ "$v" == "Y" ]; then
+	    return 0
+	elif [ "$v" == "n" ] || [ "v" == "N" ]; then
+	    return 1
+	else
+	    echo "$v is not valid."
+	    v=""
+	fi
+    done
+}
+
+### Checks the symlink to the Engine source by seeing if the "Readme" exists
+checklinkEngineSrc() {
+    if [ -f "$1/README.md" ]; then
+	echo 0
+	return
+    else
+	echo 1
+	return
+    fi
+}
+
+
 #Help
 help() {
     printf "\n##########\n###  Zeda Compiler  \n##########\n\n  Usage:\n"
@@ -52,8 +84,10 @@ EOF
 new-project() {
     if [ -f $PWD/.zedarc ]; then
 	printf "WARNING:  zedarc exists.\nA project potentially exists here.\n"
-	read -ep "Continue creating a new project? [Y/n]: " Proceed
-        if echo $Proceed | grep -iq "^n"; then exit; fi
+	yn "Continue creating a new project?"
+	if [ "$?" == 1 ]; then
+	    exit
+	fi
     fi
     printf "\n##########\n###  Zeda Compiler New Project \n##########\n\n"
     name=""
@@ -64,7 +98,39 @@ new-project() {
 	    echo "Enter a valid name for the project."
 	fi
     done;
-    echo "name is: $name"
+    echo "Setting Project Name: $name"
+    echo "NAME=$name" > ./.zedarc
+    syml=""
+    while [ "$syml" == "" ]
+    do
+	if [ "$ZEDASOURCE" != "" ]; then
+	    read -ep "Use currently linked engine: $ZEDASOURCE [y/N]: " Proceed
+            if echo $Proceed | grep -iq "^y"; then syml=$ZEDASOURCE; break; fi
+	fi
+	read -ep "Path to Zeda Source: " syml
+	if [ "$syml" == "" ]; then
+	    echo "Enter a valid symlink."
+	fi
+	if [ "$(checklinkEngineSrc $syml)" == "1" ]; then
+	    echo "$syml does not point to the the Zeda Source."
+	    syml=""
+	fi
+    done
+    echo "Link to Zeda Source is: $syml"
+    echo "ZEDASOURCE=$syml" >> ./.zedarc
+    mkdir -vp bin
+    mkdir -vp src
+    mkdir -vp include
+    mkdir -vp resources
+    mkdir -vp assets
+    ln -svf $syml $PWD/Zeda
+    echo "# $name" > ./README.md
+    printf "# Anything in the bin directory\nbin/\n#Don't include the Source Link\nZeda/\n#Or the .zedarc\n./.zedarc\n" > .gitignore
+    git init
+    git add .
+    git commit -m "init"a
+    printf "\nGit initialized, project started.  Add a mirror when ready.\n"
+    printf "Project $name is ready to be started.\nTo begin, use \"zc build-engine\" to build the Zeda engine.\nTo build your project use: \"zc build\"\nStart editing your files in $PWD/src\n\n"
 }
 
 #Init Logic
