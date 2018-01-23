@@ -51,7 +51,16 @@ help() {
 
 #Check and verify source file
 cv() {
-    echo "Check and verify"
+    if [ -f $PWD/.zedarc ]; then
+	source $PWD/.zedarc
+    else
+	echo "ERROR: No .zedarc in current directory."
+	echo "To start a new project, use:\n"
+	echo "  zc new-project \n\n"
+	echo "To import a project, use:\n"
+	echo "  zc import-oroject \n\n"
+	exit
+    fi
 }
 
 #Build the engine
@@ -61,7 +70,27 @@ build-engine() {
 
 #Build the current project
 build-project() {
-    echo 'build-project'
+    printf "\n##########\n###  Zeda Compiler Build \n##########\n\n"
+    cv
+    INCLUDES="-I./include -I./Zeda/include/"
+    LINK="-lz"
+    LSOURCE="$(find . -name '*.cpp' -printf './%P ')"
+    ESOURCE="$(find ./Zeda/ -name '*.cpp' -printf './Zeda/%P ')"
+    g++ $LSOURCE $ESOURCE $INCLUDES $LINK -o "bin/$NAME"
+    if [ "$?" != 0 ]; then
+	echo "There were some errors during compilation."
+	echo "Exit status: $?\n\n"
+	exit "$?"
+    fi
+    printf "Compilation successful!\n"
+    printf "  Output:\t$PWD/bin/$NAME\n\n"
+    yn "Run $NAME? "
+    if [ "$?" == 1 ]; then
+       exit
+    fi
+    "$PWD/bin/$NAME"
+    echo "$NAME exit code: $?"
+    exit
 }
 
 #Create a new include
@@ -140,6 +169,9 @@ case "$1" in
 	;;
     "build-engine")
 	build-engine
+	;;
+    "build")
+	build-project
 	;;
     "create-lib")
 	create-lib
