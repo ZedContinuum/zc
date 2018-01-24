@@ -54,11 +54,11 @@ cv() {
     if [ -f $PWD/.zedarc ]; then
 	source $PWD/.zedarc
     else
-	echo "ERROR: No .zedarc in current directory."
-	echo "To start a new project, use:\n"
-	echo "  zc new-project \n\n"
-	echo "To import a project, use:\n"
-	echo "  zc import-oroject \n\n"
+	printf "ERROR: No .zedarc in current directory.\n"
+	printf "To start a new project, use:\n"
+	printf "  zc new-project \n\n"
+	printf "To import a project, use:\n"
+	printf "  zc import-project \n\n"
 	exit
     fi
 }
@@ -128,7 +128,7 @@ new-project() {
 	fi
     done;
     echo "Setting Project Name: $name"
-    echo "NAME=$name" > ./.zedarc
+    echo "export ZEDANAME=$name" > ./.zedarc
     syml=""
     while [ "$syml" == "" ]
     do
@@ -146,7 +146,7 @@ new-project() {
 	fi
     done
     echo "Link to Zeda Source is: $syml"
-    echo "ZEDASOURCE=$syml" >> ./.zedarc
+    echo "export ZEDASOURCE=$syml" >> ./.zedarc
     mkdir -vp bin
     mkdir -vp src
     mkdir -vp include
@@ -154,7 +154,7 @@ new-project() {
     mkdir -vp assets
     ln -svf $syml $PWD/Zeda
     echo "# $name" > ./README.md
-    printf "# Anything in the bin directory\nbin/\n#Don't include the Source Link\nZeda/\n#Or the .zedarc\n./.zedarc\n" > .gitignore
+    printf "# Anything in the bin directory\nbin/\n#Don't include the Source Link\nZeda\n#Or the .zedarc\n.zedarc\n" > .gitignore
     git init
     git add .
     git commit -m "init"a
